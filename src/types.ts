@@ -3,4 +3,5 @@ export interface IOptions {
   onDone?: (args: any) => void;
   token: string;
   types: string;
+  userId: string;
 }
