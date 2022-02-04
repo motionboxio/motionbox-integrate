@@ -1,0 +1,30 @@
+{
+  "name": "motionbox-integrate",
+  "version": "2.0.0",
+  "description": "Package to help third parties integrate with Motionbox",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "jsnext:main": "dist/index.esm.js",
+  "types": "dist/types.d.ts",
+  "typings": "dist/index.d.ts",
+  "author": "Michael Aubry",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "test": "jest --env=jsdom",
+    "clean": "rimraf dist",
+    "build": "yarn clean && yarn rollup -c"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
+    "@rollup/plugin-replace": "^3.0.1",
+    "@types/jest": "^27.4.0",
+    "jest": "^27.4.7",
+    "rollup": "^2.67.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-typescript2": "^0.31.2",
+    "ts-jest": "^27.1.3",
+    "typescript": "^4.5.5"
+  }
+}
