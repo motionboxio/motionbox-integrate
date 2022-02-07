@@ -19,7 +19,12 @@ export interface IVideo {
 export interface IUIConfig {
   dashboard: boolean;
   sidebar: {
-    videos: IVideo[];
+    templates: boolean;
+    photos: boolean;
+    videos: IVideo[] | boolean;
+    elements: boolean;
+    text: boolean;
+    uploads: boolean;
   };
 }
 

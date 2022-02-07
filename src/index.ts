@@ -234,6 +234,7 @@ const createStory = async ({ token, ownerId, userId }: any) => {
           token: options.token ? options.token : "",
           onDone: options.onDone ? true : "",
           uiConfig: options.uiConfig,
+          isMotionbox: true,
         },
         "*"
       );
