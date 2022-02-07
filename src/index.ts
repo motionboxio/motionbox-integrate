@@ -55,7 +55,7 @@ const CREATE_STORY = `
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
-      authorization: `Bearer ${options.token}`,
+      authorization: options.token,
     },
     body: JSON.stringify({
       query: GET_STORY,
