@@ -19,9 +19,10 @@ export interface IVideo {
 export interface IUIConfig {
   dashboard: boolean;
   sidebar: {
+    active: string;
     templates: boolean;
     photos: boolean;
-    videos: IVideo[] | boolean;
+    videos: IVideo[][] | boolean;
     elements: boolean;
     text: boolean;
     uploads: boolean;
