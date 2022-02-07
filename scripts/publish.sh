@@ -116,8 +116,8 @@ yarn -s install --frozen-lockfile
 echo "Running tests"
 yarn -s run test
 
-echo "Bumping package.json $RELEASE_TYPE version and tagging commit"
-yarn -s version --$RELEASE_TYPE
+# echo "Bumping package.json $RELEASE_TYPE version and tagging commit"
+# yarn -s version --$RELEASE_TYPE
 
 echo "Building"
 yarn -s run build
