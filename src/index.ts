@@ -58,7 +58,7 @@ const CREATE_STORY = `
       authorization: `Bearer ${options.token}`,
     },
     body: JSON.stringify({
-      GET_STORY,
+      query: GET_STORY,
       variables: {
         storyId: options.userId,
       },
