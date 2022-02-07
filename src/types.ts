@@ -1,7 +1,31 @@
+export interface IVideo {
+  duration: number;
+  height: number;
+  image: string;
+  url: string;
+  video_files: {
+    file_type: string;
+    height: number;
+    link: string;
+    quality: string;
+    width: number;
+  }[];
+  video_pictures: {
+    picture: string;
+  }[];
+  width: number;
+}
+
+export interface IUIConfig {
+  dashboard: boolean;
+  sidebar: {
+    videos: IVideo[];
+  };
+}
+
 export interface IOptions {
-  accountId: string;
   onDone?: (args: any) => void;
   token: string;
-  types: string;
   userId: string;
+  uiConfig: IUIConfig;
 }

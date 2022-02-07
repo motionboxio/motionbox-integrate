@@ -216,7 +216,6 @@ const createStory = async ({ token, ownerId, userId }: any) => {
   });
 
   if (!user.story) {
-    console.log("Create Story");
     await createStory({
       token: options.token,
       userId: options.userId,
@@ -224,7 +223,7 @@ const createStory = async ({ token, ownerId, userId }: any) => {
     });
   }
 
-  iframe.src = `https://motionbox.io/creator/${options.userId}`;
+  iframe.src = `https://staging.motionbox.io/creator/${options.userId}`;
 
   iframe.onload = () => {
     scWrapper.classList.add("loaded");
@@ -232,10 +231,9 @@ const createStory = async ({ token, ownerId, userId }: any) => {
     if (iframe?.contentWindow) {
       iframe.contentWindow.postMessage(
         {
-          accountId: options.accountId ? options.accountId : "",
-          onDone: options.onDone ? true : "",
           token: options.token ? options.token : "",
-          types: options.types ? options.types : "",
+          onDone: options.onDone ? true : "",
+          uiConfig: options.uiConfig,
         },
         "*"
       );
