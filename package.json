@@ -1,6 +1,6 @@
 {
   "name": "motionbox-integrate",
-  "version": "2.0.3-beta-0.1",
+  "version": "2.0.3-beta-0.2",
   "description": "Package to help third parties integrate with Motionbox",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

@@ -21,8 +21,8 @@ const GET_STORY = `
 `;
 
 const CREATE_STORY = `
-  mutation ($ownerId: ID!, $data: String, $title: String, $boarddimensions: String) {
-    createStory(ownerId: $ownerId, data: $data, boarddimensions: $boarddimensions, title: $title) {
+  mutation ($id: ID, $ownerId: ID!, $data: String, $title: String, $boarddimensions: String) {
+    createStory(id: $id, ownerId: $ownerId, data: $data, boarddimensions: $boarddimensions, title: $title) {
       id
       title
       thumbnail
@@ -34,6 +34,49 @@ const CREATE_STORY = `
     }
   }
 `;
+
+const fetchStory = async ({ token, userId }: any) => {
+  const res = await fetch(GRAPHQL_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      authorization: token,
+    },
+    body: JSON.stringify({
+      query: GET_STORY,
+      variables: {
+        storyId: userId,
+      },
+    }),
+  });
+
+  const { data } = await res.json();
+
+  return data.user;
+};
+
+const createStory = async ({ token, ownerId, userId }: any) => {
+  const res = await fetch(GRAPHQL_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      authorization: token,
+    },
+    body: JSON.stringify({
+      query: CREATE_STORY,
+      variables: {
+        id: userId,
+        ownerId,
+      },
+    }),
+  });
+
+  const { data } = await res.json();
+
+  return data.user;
+};
 
 // https://jsfiddle.net/7to3180q/1/
 (window as any).closeMotionbox = () =>
@@ -48,34 +91,6 @@ const CREATE_STORY = `
   scWrapper.id = "Motionbox";
   closeButton.id = "Motionbox-Close-Button";
   scLogo.id = "Motionbox-Logo";
-  iframe.src = `https://motionbox.io/creator/${options.userId}`;
-
-  const res = await fetch(GRAPHQL_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      authorization: options.token,
-    },
-    body: JSON.stringify({
-      query: GET_STORY,
-      variables: {
-        storyId: options.userId,
-      },
-    }),
-  });
-
-  const data = await res.json();
-
-  // TODO: Check if video for user exists
-  console.log("Check story", {
-    data,
-  });
-
-  // TODO: If not lets create so we can direct them
-  console.log(
-    "If story doesnt exist lets create with userId being the storyId"
-  );
 
   const style = `
     #Motionbox.loaded iframe,
@@ -194,6 +209,22 @@ const CREATE_STORY = `
   document.body.append(scWrapper);
   scWrapper.onclick = (window as any).closeMotionbox;
   closeButton.onclick = (window as any).closeMotionbox;
+
+  const user = await fetchStory({
+    token: options.token,
+    userId: options.userId,
+  });
+
+  if (!user.story) {
+    console.log("Create Story");
+    await createStory({
+      token: options.token,
+      userId: options.userId,
+      ownerId: user.id,
+    });
+  }
+
+  iframe.src = `https://motionbox.io/creator/${options.userId}`;
 
   iframe.onload = () => {
     scWrapper.classList.add("loaded");
