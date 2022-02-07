@@ -1,9 +1,46 @@
+import { GraphQLClient } from "graphql-request";
 import { IOptions } from "./types";
 
-// https://jsfiddle.net/7to3180q/1/
-(window as any).closeMotionbox = () => (document as any).getElementById("Motionbox").remove();
+export const GRAPHQL_ENDPOINT = "https://prisma-staging.vercel.app/api";
 
-(window as any).openMotionbox = (options: IOptions) => {
+const GET_STORY = `
+  query ($storyId: ID!) {
+    user {
+      id
+      story(id: $storyId) {
+        id
+        title
+        thumbnail
+        videos {
+          id
+          data
+          boarddimensions
+        }
+      }
+    }
+  }
+`;
+
+const CREATE_STORY = `
+  mutation ($ownerId: ID!, $data: String, $title: String, $boarddimensions: String) {
+    createStory(ownerId: $ownerId, data: $data, boarddimensions: $boarddimensions, title: $title) {
+      id
+      title
+      thumbnail
+      videos {
+        id
+        data
+        boarddimensions
+      }
+    }
+  }
+`;
+
+// https://jsfiddle.net/7to3180q/1/
+(window as any).closeMotionbox = () =>
+  (document as any).getElementById("Motionbox").remove();
+
+(window as any).openMotionbox = async (options: IOptions) => {
   const scWrapper = document.createElement("div");
   const closeButton = document.createElement("div");
   const scLogo = document.createElement("div");
@@ -12,7 +49,27 @@ import { IOptions } from "./types";
   scWrapper.id = "Motionbox";
   closeButton.id = "Motionbox-Close-Button";
   scLogo.id = "Motionbox-Logo";
-  iframe.src = "https://motionbox.io/dashboard";
+  iframe.src = `https://motionbox.io/creator/${options.userId}`;
+
+  const graphQLClient = new GraphQLClient(GRAPHQL_ENDPOINT, {
+    headers: {
+      authorization: `Bearer ${options.token}`,
+    },
+  });
+
+  const story = await graphQLClient.request(GET_STORY, {
+    storyId: options.userId,
+  });
+
+  // TODO: Check if video for user exists
+  console.log("Check story", {
+    story,
+  });
+
+  // TODO: If not lets create so we can direct them
+  console.log(
+    "If story doesnt exist lets create with userId being the storyId"
+  );
 
   const style = `
     #Motionbox.loaded iframe,
@@ -141,7 +198,7 @@ import { IOptions } from "./types";
           accountId: options.accountId ? options.accountId : "",
           onDone: options.onDone ? true : "",
           token: options.token ? options.token : "",
-          types: options.types ? options.types : ""
+          types: options.types ? options.types : "",
         },
         "*"
       );
@@ -153,7 +210,7 @@ import { IOptions } from "./types";
   const receiveMessage = (event: MessageEvent<any>) => {
     options.onDone &&
       options.onDone({
-        link: event.data.link
+        link: event.data.link,
       });
   };
 
