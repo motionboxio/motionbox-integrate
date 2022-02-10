@@ -2,8 +2,7 @@ import babel from "rollup-plugin-babel";
 import ts from "rollup-plugin-typescript2";
 import replace from "@rollup/plugin-replace";
 import pkg from "./package.json";
-import commonjs from '@rollup/plugin-commonjs';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
+import { uglify } from "rollup-plugin-uglify";
 
 const PLUGINS = [
   ts({
@@ -11,10 +10,15 @@ const PLUGINS = [
   }),
   babel({
     extensions: [".ts", ".js", ".tsx", ".jsx"],
-    presets: ['@babel/env']
+    presets: [[
+      '@babel/preset-env', {
+        targets: {
+          node: '14.0.0'
+        },
+      },
+    ]]
   }),
-  nodeResolve({browser: true}),
-  commonjs(),
+  uglify(),
   replace({
     _VERSION: JSON.stringify(pkg.version),
   }),
