@@ -78,6 +78,14 @@ const createStory = async ({ token, ownerId, userId }: any) => {
   return data.user;
 };
 
+const getEnv = (env?: "production" | "staging" | "development") => {
+  if (!env) return "https://staging.motionbox.io";
+
+  if (env === "production") return "https://motionbox.io";
+  if (env === "staging") return "https://staging.motionbox.io";
+  if (env === "development") return "http://localhost:3000";
+};
+
 // https://jsfiddle.net/7to3180q/1/
 (window as any).closeMotionbox = () =>
   (document as any).getElementById("Motionbox").remove();
@@ -223,7 +231,7 @@ const createStory = async ({ token, ownerId, userId }: any) => {
     });
   }
 
-  iframe.src = `https://staging.motionbox.io/creator/${options.userId}`;
+  iframe.src = `${getEnv(options.env)}/creator/${options.userId}`;
 
   iframe.onload = () => {
     scWrapper.classList.add("loaded");

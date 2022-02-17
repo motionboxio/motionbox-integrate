@@ -18,6 +18,10 @@ export interface IVideo {
 
 export interface IUIConfig {
   dashboard: boolean;
+  header: {
+    avatars: boolean;
+    sharing: boolean;
+  };
   sidebar: {
     active: string;
     templates: boolean;
@@ -30,6 +34,7 @@ export interface IUIConfig {
 }
 
 export interface IOptions {
+  env?: "production" | "staging" | "development";
   onDone?: (args: any) => void;
   token: string;
   userId: string;
