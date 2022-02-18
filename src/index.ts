@@ -4,24 +4,24 @@ const getEnv = (env?: "production" | "staging" | "development") => {
   if (env === "production")
     return {
       main: "https://motionbox.io",
-      prisma: "https://prisma-production.vercel.app/api",
+      prisma: "https://prisma-production.vercel.app",
     };
 
   if (env === "staging")
     return {
       main: "https://staging.motionbox.io",
-      prisma: "https://prisma-staging.vercel.app/api",
+      prisma: "https://prisma-staging.vercel.app",
     };
 
   if (env === "development")
     return {
       main: "http://localhost:3000",
-      prisma: "http://localhost:3001/api",
+      prisma: "http://localhost:3001",
     };
 
   return {
     main: "https://staging.motionbox.io",
-    prisma: "https://prisma-staging.vercel.app/api",
+    prisma: "https://prisma-staging.vercel.app",
   };
 };
 
