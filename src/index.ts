@@ -108,7 +108,7 @@ const getEnv = (env?: "production" | "staging" | "development") => {
     return data.user;
   };
 
-  const mbWrapper = document.createElement("div");
+  const mbWrapper: HTMLDivElement = document.createElement("div");
   const closeButton = document.createElement("div");
   const mbLogo = document.createElement("div");
   const spinner = document.createElement("div");
@@ -314,6 +314,7 @@ const getEnv = (env?: "production" | "staging" | "development") => {
   iframe.src = `${getEnv(options.env).main}/creator/${options.userId}`;
 
   iframe.onload = () => {
+    spinner.remove();
     mbWrapper.classList.add("loaded");
 
     if (iframe?.contentWindow) {
