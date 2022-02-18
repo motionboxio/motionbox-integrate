@@ -23,6 +23,7 @@ export interface IUIConfig {
     sharing: boolean;
   };
   sidebar: {
+    logo: boolean;
     active: string;
     templates: boolean;
     photos: boolean;

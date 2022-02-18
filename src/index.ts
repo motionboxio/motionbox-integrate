@@ -108,18 +108,20 @@ const getEnv = (env?: "production" | "staging" | "development") => {
     return data.user;
   };
 
-  const scWrapper = document.createElement("div");
+  const mbWrapper = document.createElement("div");
   const closeButton = document.createElement("div");
-  const scLogo = document.createElement("div");
+  const mbLogo = document.createElement("div");
+  const spinner = document.createElement("div");
   const iframe = document.createElement("iframe");
 
-  scWrapper.id = "Motionbox";
+  mbWrapper.id = "Motionbox";
   closeButton.id = "Motionbox-Close-Button";
-  scLogo.id = "Motionbox-Logo";
+  mbLogo.id = "Motionbox-Logo";
+  spinner.id = "Motionbox-Spinner";
 
   const style = `
     #Motionbox.loaded iframe,
-    #Motionbox.loaded #StoryCreator-Close-Button {
+    #Motionbox.loaded #Motionbox-Close-Button {
       opacity: 1;
     }
     #Motionbox.loaded #Motionbox-Logo {
@@ -168,7 +170,8 @@ const getEnv = (env?: "production" | "staging" | "development") => {
     #Motionbox-Close-Button svg path {
       fill: #fff;
     }
-    #Motionbox-Logo {
+    #Motionbox-Logo,
+    #Motionbox-Spinner {
       display: block;
       position: absolute;
       margin: auto;
@@ -176,6 +179,13 @@ const getEnv = (env?: "production" | "staging" | "development") => {
       right: 0;
       top: 0;
       bottom: 0;
+    }
+    #Motionbox-Spinner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #Motionbox-Logo {
       width: 10%;
       height: 10%;
     }
@@ -191,6 +201,35 @@ const getEnv = (env?: "production" | "staging" | "development") => {
     #Motionbox-Logo .st2 {
       fill: #ffffff;
     }
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    .text-white {
+      color: #ffffff;
+    }
+    .w-5 {
+      width: 1.25rem;
+    }
+    .h-5 {
+      height: 1.25rem;
+    }
+    .m-auto {
+      margin: auto !important;
+    }
+    .opacity-25 {
+      opacity: 0.25 !important;
+    }
+    .opacity-75 {
+      opacity: 0.75 !important;
+    }
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
   `;
 
   closeButton.innerHTML = `
@@ -202,7 +241,7 @@ const getEnv = (env?: "production" | "staging" | "development") => {
     </svg>
   `;
 
-  scLogo.innerHTML = `
+  mbLogo.innerHTML = `
     <svg id="Layer_1" style="width:30px" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 125.32 125.15">
       <g id="Logo">
         <g id="Cube">
@@ -226,13 +265,37 @@ const getEnv = (env?: "production" | "staging" | "development") => {
     </svg>
   `;
 
-  document.head.insertAdjacentHTML("beforeend", `<style>${style}</style>`);
-  scWrapper.append(iframe);
-  scWrapper.append(closeButton);
-  scWrapper.append(scLogo);
+  spinner.innerHTML = `
+    <svg
+      class="animate-spin m-auto h-5 w-5 text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+      class="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        stroke-width="4"
+      ></circle>
+      <path
+      class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      ></path>
+    </svg>
+  `;
 
-  document.body.append(scWrapper);
-  scWrapper.onclick = (window as any).closeMotionbox;
+  document.head.insertAdjacentHTML("beforeend", `<style>${style}</style>`);
+  mbWrapper.append(iframe);
+  mbWrapper.append(closeButton);
+  // mbWrapper.append(mbLogo);
+  mbWrapper.append(spinner);
+
+  document.body.append(mbWrapper);
+  mbWrapper.onclick = (window as any).closeMotionbox;
   closeButton.onclick = (window as any).closeMotionbox;
 
   const user = await fetchStory({
@@ -251,7 +314,7 @@ const getEnv = (env?: "production" | "staging" | "development") => {
   iframe.src = `${getEnv(options.env).main}/creator/${options.userId}`;
 
   iframe.onload = () => {
-    scWrapper.classList.add("loaded");
+    mbWrapper.classList.add("loaded");
 
     if (iframe?.contentWindow) {
       iframe.contentWindow.postMessage(
