@@ -1,12 +1,58 @@
 import { IOptions } from "./types";
 
-const GRAPHQL_ENDPOINT = "https://prisma-staging.vercel.app/api";
+const getEnv = (env?: "production" | "staging" | "development") => {
+  if (env === "production")
+    return {
+      main: "https://motionbox.io",
+      prisma: "https://prisma-production.vercel.app/api",
+    };
 
-const GET_STORY = `
-  query ($storyId: ID!) {
-    user {
-      id
-      story(id: $storyId) {
+  if (env === "staging")
+    return {
+      main: "https://staging.motionbox.io",
+      prisma: "https://prisma-staging.vercel.app/api",
+    };
+
+  if (env === "development")
+    return {
+      main: "http://localhost:3000",
+      prisma: "http://localhost:3001/api",
+    };
+
+  return {
+    main: "https://staging.motionbox.io",
+    prisma: "https://prisma-staging.vercel.app/api",
+  };
+};
+
+// https://jsfiddle.net/7to3180q/1/
+(window as any).closeMotionbox = () =>
+  (document as any).getElementById("Motionbox").remove();
+
+(window as any).openMotionbox = async (options: IOptions) => {
+  const GRAPHQL_ENDPOINT = `${getEnv(options.env).prisma}/api`;
+
+  const GET_STORY = `
+    query ($storyId: ID!) {
+      user {
+        id
+        story(id: $storyId) {
+          id
+          title
+          thumbnail
+          videos {
+            id
+            data
+            boarddimensions
+          }
+        }
+      }
+    }
+  `;
+
+  const CREATE_STORY = `
+    mutation ($id: ID, $ownerId: ID!, $data: String, $title: String, $boarddimensions: String) {
+      createStory(id: $id, ownerId: $ownerId, data: $data, boarddimensions: $boarddimensions, title: $title) {
         id
         title
         thumbnail
@@ -17,80 +63,51 @@ const GET_STORY = `
         }
       }
     }
-  }
-`;
+  `;
 
-const CREATE_STORY = `
-  mutation ($id: ID, $ownerId: ID!, $data: String, $title: String, $boarddimensions: String) {
-    createStory(id: $id, ownerId: $ownerId, data: $data, boarddimensions: $boarddimensions, title: $title) {
-      id
-      title
-      thumbnail
-      videos {
-        id
-        data
-        boarddimensions
-      }
-    }
-  }
-`;
-
-const fetchStory = async ({ token, userId }: any) => {
-  const res = await fetch(GRAPHQL_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      authorization: token,
-    },
-    body: JSON.stringify({
-      query: GET_STORY,
-      variables: {
-        storyId: userId,
+  const fetchStory = async ({ token, userId }: any) => {
+    const res = await fetch(GRAPHQL_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        authorization: token,
       },
-    }),
-  });
+      body: JSON.stringify({
+        query: GET_STORY,
+        variables: {
+          storyId: userId,
+        },
+      }),
+    });
 
-  const { data } = await res.json();
+    const { data } = await res.json();
 
-  return data.user;
-};
+    return data.user;
+  };
 
-const createStory = async ({ token, ownerId, userId }: any) => {
-  const res = await fetch(GRAPHQL_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      authorization: token,
-    },
-    body: JSON.stringify({
-      query: CREATE_STORY,
-      variables: {
-        id: userId,
-        ownerId,
+  const createStory = async ({ token, ownerId, userId }: any) => {
+    const res = await fetch(GRAPHQL_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        authorization: token,
       },
-    }),
-  });
+      body: JSON.stringify({
+        query: CREATE_STORY,
+        variables: {
+          id: userId,
+          ownerId,
+        },
+      }),
+    });
 
-  const { data } = await res.json();
+    const { data } = await res.json();
 
-  return data.user;
-};
+    return data.user;
+  };
 
-const getEnv = (env?: "production" | "staging" | "development") => {
-  if (!env) return "https://staging.motionbox.io";
-
-  if (env === "production") return "https://motionbox.io";
-  if (env === "staging") return "https://staging.motionbox.io";
-  if (env === "development") return "http://localhost:3000";
-};
-
-// https://jsfiddle.net/7to3180q/1/
-(window as any).closeMotionbox = () =>
-  (document as any).getElementById("Motionbox").remove();
-
-(window as any).openMotionbox = async (options: IOptions) => {
   const scWrapper = document.createElement("div");
   const closeButton = document.createElement("div");
   const scLogo = document.createElement("div");
@@ -231,7 +248,7 @@ const getEnv = (env?: "production" | "staging" | "development") => {
     });
   }
 
-  iframe.src = `${getEnv(options.env)}/creator/${options.userId}`;
+  iframe.src = `${getEnv(options.env).main}/creator/${options.userId}`;
 
   iframe.onload = () => {
     scWrapper.classList.add("loaded");
