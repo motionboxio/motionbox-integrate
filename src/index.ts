@@ -298,6 +298,7 @@ const getEnv = (env?: "production" | "staging" | "development") => {
   mbWrapper.onclick = (window as any).closeMotionbox;
   closeButton.onclick = (window as any).closeMotionbox;
 
+  // TODO: Handle not authenticated
   const user = await fetchStory({
     token: options.token,
     userId: options.userId,
