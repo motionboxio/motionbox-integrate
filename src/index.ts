@@ -32,80 +32,97 @@ const getEnv = (env?: "production" | "staging" | "development") => {
 (window as any).openMotionbox = async (options: IOptions) => {
   const GRAPHQL_ENDPOINT = `${getEnv(options.env).prisma}/api`;
 
-  const GET_STORY = `
-    query ($storyId: ID!) {
-      user {
-        id
-        story(id: $storyId) {
-          id
-          title
-          thumbnail
-          videos {
+  const fetchSubUser = async ({ token, userId }: any) => {
+    try {
+      const GET_SUBUSER = `
+        query ($id: ID!) {
+          subUser {
             id
-            data
-            boarddimensions
+            projects {
+              id
+              title
+              thumbnail
+              userVideos {
+                id
+                data
+                boarddimensions
+              }
+            }
           }
         }
-      }
-    }
-  `;
+      `;
 
-  const CREATE_STORY = `
-    mutation ($id: ID, $ownerId: ID!, $data: String, $title: String, $boarddimensions: String) {
-      createStory(id: $id, ownerId: $ownerId, data: $data, boarddimensions: $boarddimensions, title: $title) {
-        id
-        title
-        thumbnail
-        videos {
-          id
-          data
-          boarddimensions
+      const CREATE_SUBUSER = `
+        mutation ($id: ID!) {
+          createSubUser(id: $id) {
+            id
+            projects {
+              id
+              title
+              thumbnail
+              userVideos {
+                id
+                data
+                boarddimensions
+              }
+            }
+          }
         }
+      `;
+
+      const getRes = await fetch(GRAPHQL_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          authorization: token,
+        },
+        body: JSON.stringify({
+          query: GET_SUBUSER,
+          variables: {
+            id: userId,
+          },
+        }),
+      });
+
+      const getData = await getRes.json();
+
+      console.log({
+        getData,
+      });
+
+      if (!getData.data.user) {
+        // create user
+        const createRes = await fetch(GRAPHQL_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            authorization: token,
+          },
+          body: JSON.stringify({
+            query: CREATE_SUBUSER,
+            variables: {
+              id: userId,
+            },
+          }),
+        });
+
+        const createData = await createRes.json();
+
+        console.log({
+          createData,
+        });
+
+        return createData.data.user;
+      } else {
+        return getData.data.user;
       }
+    } catch (e) {
+      throw new Error(
+        `Error fetching video ${e} ${Object.getOwnPropertyNames(e)}`
+      );
     }
-  `;
-
-  const fetchStory = async ({ token, userId }: any) => {
-    const res = await fetch(GRAPHQL_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        authorization: token,
-      },
-      body: JSON.stringify({
-        query: GET_STORY,
-        variables: {
-          storyId: userId,
-        },
-      }),
-    });
-
-    const { data } = await res.json();
-
-    return data.user;
-  };
-
-  const createStory = async ({ token, ownerId, userId }: any) => {
-    const res = await fetch(GRAPHQL_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        authorization: token,
-      },
-      body: JSON.stringify({
-        query: CREATE_STORY,
-        variables: {
-          id: userId,
-          ownerId,
-        },
-      }),
-    });
-
-    const { data } = await res.json();
-
-    return data.user;
   };
 
   const mbWrapper: HTMLDivElement = document.createElement("div");
@@ -298,47 +315,50 @@ const getEnv = (env?: "production" | "staging" | "development") => {
   mbWrapper.onclick = (window as any).closeMotionbox;
   closeButton.onclick = (window as any).closeMotionbox;
 
-  // TODO: Handle not authenticated
-  const user = await fetchStory({
-    token: options.token,
-    userId: options.userId,
-  });
-
-  if (!user.story) {
-    await createStory({
+  try {
+    // fetchSubUser
+    const subUser = await fetchSubUser({
       token: options.token,
       userId: options.userId,
-      ownerId: user.id,
     });
+
+    console.log({
+      subUser,
+    });
+
+    iframe.src = `${getEnv(options.env).main}/creator/${options.userId}`;
+
+    iframe.onload = () => {
+      spinner.remove();
+      mbWrapper.classList.add("loaded");
+
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage(
+          {
+            token: options.token ? options.token : "",
+            onDone: options.onDone ? true : "",
+            subUser,
+            uiConfig: options.uiConfig,
+            isMotionbox: true,
+          },
+          "*"
+        );
+      } else {
+        console.log("iframe.contentWindow is null");
+      }
+    };
+
+    const receiveMessage = (event: MessageEvent<any>) => {
+      options.onDone &&
+        options.onDone({
+          link: event.data.link,
+        });
+    };
+
+    window.addEventListener("message", receiveMessage, false);
+  } catch (e: any) {
+    throw new Error(
+      `Error opening Motionbox ${e} ${Object.getOwnPropertyNames(e)}`
+    );
   }
-
-  iframe.src = `${getEnv(options.env).main}/creator/${options.userId}`;
-
-  iframe.onload = () => {
-    spinner.remove();
-    mbWrapper.classList.add("loaded");
-
-    if (iframe?.contentWindow) {
-      iframe.contentWindow.postMessage(
-        {
-          token: options.token ? options.token : "",
-          onDone: options.onDone ? true : "",
-          uiConfig: options.uiConfig,
-          isMotionbox: true,
-        },
-        "*"
-      );
-    } else {
-      console.log("iframe.contentWindow is null");
-    }
-  };
-
-  const receiveMessage = (event: MessageEvent<any>) => {
-    options.onDone &&
-      options.onDone({
-        link: event.data.link,
-      });
-  };
-
-  window.addEventListener("message", receiveMessage, false);
 };
