@@ -91,7 +91,7 @@ const getEnv = (env?: "production" | "staging" | "development") => {
         getData,
       });
 
-      if (!getData.data.user) {
+      if (!getData.data.subUser) {
         // create user
         const createRes = await fetch(GRAPHQL_ENDPOINT, {
           method: "POST",
@@ -114,9 +114,9 @@ const getEnv = (env?: "production" | "staging" | "development") => {
           createData,
         });
 
-        return createData.data.user;
+        return createData.data.subUser;
       } else {
-        return getData.data.user;
+        return getData.data.subUser;
       }
     } catch (e) {
       throw new Error(
