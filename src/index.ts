@@ -38,6 +38,7 @@ const getEnv = (env?: "production" | "staging" | "development") => {
         query ($id: ID!) {
           subUser(id: $id) {
             id
+            media
             projects {
               id
               title
@@ -56,6 +57,7 @@ const getEnv = (env?: "production" | "staging" | "development") => {
         mutation ($id: ID!) {
           createSubUser(id: $id) {
             id
+            media
             projects {
               id
               title
