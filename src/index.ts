@@ -326,7 +326,12 @@ const getEnv = (env?: "production" | "staging" | "development") => {
       subUser,
     });
 
-    iframe.src = `${getEnv(options.env).main}/creator/${options.userId}`;
+    if (!subUser.projects.length)
+      throw new Error("SubUser does not have any projects");
+
+    iframe.src = `${getEnv(options.env).main}/creator/${
+      subUser.projects[0].id
+    }`;
 
     iframe.onload = () => {
       spinner.remove();
