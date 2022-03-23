@@ -36,7 +36,7 @@ const getEnv = (env?: "production" | "staging" | "development") => {
     try {
       const GET_SUBUSER = `
         query ($id: ID!) {
-          subUser {
+          subUser(id: $id) {
             id
             projects {
               id
