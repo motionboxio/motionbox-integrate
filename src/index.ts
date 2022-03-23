@@ -113,10 +113,6 @@ const getEnv = (env?: "production" | "staging" | "development") => {
 
       const getData = await getRes.json();
 
-      console.log({
-        getData,
-      });
-
       if (!getData.data.subUser) {
         // create user
         const createRes = await fetch(GRAPHQL_ENDPOINT, {
@@ -136,11 +132,7 @@ const getEnv = (env?: "production" | "staging" | "development") => {
 
         const createData = await createRes.json();
 
-        console.log({
-          createData,
-        });
-
-        return createData.data.subUser;
+        return createData.data.createSubUser;
       } else {
         return getData.data.subUser;
       }
@@ -346,10 +338,6 @@ const getEnv = (env?: "production" | "staging" | "development") => {
     const subUser = await fetchSubUser({
       token: options.token,
       userId: options.userId,
-    });
-
-    console.log({
-      subUser,
     });
 
     if (!subUser.projects.length)
