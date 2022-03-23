@@ -38,7 +38,19 @@ const getEnv = (env?: "production" | "staging" | "development") => {
         query ($id: ID!) {
           subUser(id: $id) {
             id
-            media
+            media(orderBy: "date_DESC") {
+              id
+              uid
+              date
+              mediaurl
+              type
+              name
+              loading
+              thumbnails
+              duration
+              metadata
+              thumbnailSprites
+            }
             projects {
               id
               title
@@ -57,7 +69,19 @@ const getEnv = (env?: "production" | "staging" | "development") => {
         mutation ($id: ID!) {
           createSubUser(id: $id) {
             id
-            media
+            media(orderBy: "date_DESC") {
+              id
+              uid
+              date
+              mediaurl
+              type
+              name
+              loading
+              thumbnails
+              duration
+              metadata
+              thumbnailSprites
+            }
             projects {
               id
               title
